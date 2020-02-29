@@ -11,9 +11,18 @@ module.exports = {
     // indexPath:'/',
     // css
     lintOnSave: false,
+    pwa: {
+        iconPaths: {
+            favicon32: 'favicon.ico',
+            favicon16: 'favicon.ico',
+            appleTouchIcon: 'favicon.ico',
+            maskIcon: 'favicon.ico',
+            msTileImage: 'favicon.ico'
+        }
+    },
     devServer: {
         // open: process.platform === 'darwin',
-        // host: '0.0.0.0',
+        host: '0.0.0.0',
         // port: 8080,
         https: false,
         // hotOnly: false,
@@ -27,5 +36,5 @@ module.exports = {
 
             }
         }
-    }
+    },
 }

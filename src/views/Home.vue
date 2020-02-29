@@ -8,6 +8,10 @@
             <el-menu-item index="4">投票记录详情</el-menu-item>
 
         </el-menu>
+        <div v-show="search_show">
+            <el-input v-model="search_address" class="search" placeholder="请输入地址查询"></el-input>
+            <el-button type="primary" style="margin-left: 30px" @click="search_add()">查询</el-button>
+        </div>
         <div class="show_con" v-show="list[0].is_show">
             <el-tree
                     :data="tree_data"
@@ -145,7 +149,7 @@
             <el-pagination
                     background
                     @current-change="currentPageChange_1"
-                    :current-page="currentPage"
+                    :current-page="currentPage_1"
                     :page-size="pagesize"
                     layout="total,prev, pager, next"
                     :total="totla_1">
@@ -297,11 +301,13 @@
                     {is_show: false},
                     {is_show: false},
                 ],
+                is_open: 0,
                 tree_data: [],
                 defaultProps: {
                     children: 'children',
                     label: 'data'
                 },
+                search_show: false,
                 tableData: [],
                 currentPage: 1,
                 pagesize: 10,
@@ -315,6 +321,8 @@
                 tableData_3: [],
                 currentPage_3: 1,
                 totla_3: 0,
+                search_address: '',
+                search_value: ''
             };
         },
         created() {
@@ -323,6 +331,7 @@
 
         methods: {
             handleSelect(key, keyPath) {
+                this.is_open = key
                 this.list.forEach((item, index, myself) => {
                     if (index == key) {
                         item.is_show = true
@@ -330,8 +339,13 @@
                         item.is_show = false
                     }
                 })
-                if (key == 1) {
-                    this.getUsers(1)
+                this.search_show = true
+                this.search_address = ''
+                this.search_value = ''
+                if (key == 0) {
+                    this.search_show = false
+                } else if (key == 1) {
+                    this.getUsers(1, '')
                     this.currentPage = 1
                 } else if (key == 2) {
                     this.getUserProfit(1)
@@ -356,12 +370,12 @@
                 /span>
                 < span
             class
-                = 'widths' > {data.data.level} < /span>
+                = 'widths_1' > {data.data.level} < /span>
                     < span > 称号：<
                 /span>
                 < span
             class
-                = 'widths' > {data.data.title} < /span>
+                = 'widths_1' > {data.data.title} < /span>
                     < span > 自投票数：<
                 /span>
                 < span
@@ -385,66 +399,108 @@
                     < /span>
             )
             },
+
+            search_add() {
+                console.log(this.is_open)
+                if (this.is_open == 1) {
+                    this.currentPage = 1
+                    this.getUsers(1, this.search_address)
+                } else if (this.is_open == 2) {
+                    this.currentPage_1 = 1
+                    this.getUserProfit(1, this.search_address)
+                } else if (this.is_open == 3) {
+                    this.currentPage_2 = 1
+                    this.getVote(1, this.search_address)
+                } else if (this.is_open == 4) {
+                    this.currentPage_3 = 1
+                    this.getVoteDetail(1, this.search_address)
+                }
+            },
             getUserTree() {
                 getUserTree().then(response => {
                     this.tree_data = response.data
                 })
             },
-            getUsers(e) {
+            getUsers(e, q) {
                 let data = {
                     page: e,
-                    rows: this.pagesize
+                    rows: this.pagesize,
+                    address: q,
                 }
                 getUsers(data).then(response => {
+                    if (response.data.data.length != 0 && q != '') {
+                        this.search_value = q
+                    } else if (q == '') {
+                        this.search_value = ''
+                    }
                     this.tableData = response.data.data
                     this.totla = response.data.total
                 })
             },
             currentPageChange(e) {
                 this.currentPage = e
-                this.getUsers(this.currentPage)
+                this.getUsers(this.currentPage, this.search_value)
             },
-            getUserProfit(e) {
+            getUserProfit(e, q) {
                 let data = {
                     page: e,
-                    rows: this.pagesize
+                    rows: this.pagesize,
+                    userAddress: q,
+
                 }
                 getUserProfit(data).then(response => {
+                    if (response.data.data.length != 0 && q != '') {
+                        this.search_value = q
+                    } else if (q == '') {
+                        this.search_value = ''
+                    }
                     this.tableData_1 = response.data.data
                     this.totla_1 = response.data.total
                 })
             },
             currentPageChange_1(e) {
                 this.currentPage_1 = e
-                this.getUserProfit(this.currentPage_1)
+                this.getUserProfit(this.currentPage_1, this.search_value)
             },
-            getVote(e) {
+            getVote(e, q) {
                 let data = {
                     page: e,
-                    rows: this.pagesize
+                    rows: this.pagesize,
+                    userAddress: q,
                 }
                 getVote(data).then(response => {
+                    if (response.data.data.length != 0 && q != '') {
+                        this.search_value = q
+                    } else if (q == '') {
+                        this.search_value = ''
+                    }
                     this.tableData_2 = response.data.data
                     this.totla_2 = response.data.total
                 })
             },
             currentPageChange_2(e) {
                 this.currentPage_2 = e
-                this.getVote(this.currentPage_2)
+                this.getVote(this.currentPage_2, this.search_value)
             },
-            getVoteDetail(e) {
+            getVoteDetail(e, q) {
                 let data = {
                     page: e,
-                    rows: this.pagesize
+                    rows: this.pagesize,
+                    userAddress: q,
                 }
                 getVoteDetail(data).then(response => {
+                    if (response.data.data.length != 0 && q != '') {
+                        this.search_value = q
+                    } else if (q == '') {
+                        this.search_value = ''
+                    }
                     this.tableData_3 = response.data.data
                     this.totla_3 = response.data.total
                 })
             },
             currentPageChange_3(e) {
                 this.currentPage_3 = e
-                this.getVoteDetail(this.currentPage_3)
+                this.getVoteDetail(this.currentPage_3, this.search_value)
             },
 
 
@@ -457,8 +513,18 @@
         min-width: 80px;
         color: #409EFF;
     }
+
+    .widths_1 {
+        display: inline-block;
+        min-width: 40px;
+        color: #409EFF;
+    }
 </style>
 <style scoped>
+    .search {
+        width: 30%;
+        margin-top: 30px;
+    }
 
     .con {
         width: 90%;
